@@ -1,0 +1,2 @@
+# boto3 # provided by lambda container
+crhelper==2.0.6

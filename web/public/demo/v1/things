@@ -1,0 +1,18 @@
+{
+  "things": [
+    {
+      "name": "LivingRoomTv",
+      "attributes":{
+        "name": "Living Room TV",
+        "createdAt": "2020-01-01T00:00:00.000Z"
+      }
+    },
+    {
+      "name": "KitchenSink",
+      "attributes":{
+        "name": "Kitchen Sink",
+        "createdAt": "2020-01-01T00:00:00.000Z"
+      }
+    }
+  ]
+}

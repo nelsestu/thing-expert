@@ -1,0 +1,14 @@
+{
+  "app_name": "iot-baseline",
+  "topic_prefix": "baseline",
+  "cacert": {
+    "country": "US",
+    "state": null,
+    "locality": null,
+    "organization": null,
+    "organizational_unit": null,
+    "days": 36500
+  },
+  "debug_lambda_roles": true,
+  "debug_api_gateway_errors": true
+}

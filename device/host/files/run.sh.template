@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+# make sure containers for previous images have been stopped
+images=($(docker images --format '{{.ID}}' {{app_name}} | sort -u))
+if (( ${#images[@]} )); then
+  for image in "${images[@]}"; do
+    containers=($(docker ps --format '{{.ID}}' --filter ancestor=${image}))
+    if (( ${#containers[@]} )); then
+      for container in "${containers[@]}"; do
+        docker container stop --time 15 ${container} > /dev/null
+      done
+    fi
+  done
+fi
+
+network=host
+[ "$(uname)" == 'Darwin' ] && network=bridge
+
+docker container run                       \
+  -it                                      \
+  --rm                                     \
+  --network ${network}                     \
+  --publish 127.0.0.1:1883:1883/tcp        \
+  --volume {{app_name}}:/mnt/{{app_name}}  \
+  {{app_name}}:{{image_id}}

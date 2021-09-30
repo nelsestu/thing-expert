@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+client_id=${BASELINE_CLIENT_ID}
+
+if [ ! -f '~/.ssh/id_rsa' ]; then
+  ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N '' <<< y
+  cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys
+fi
+
+python3 - <<-EOF
+  import json
+  import paho.mqtt.publish as paho
+  paho.single('\$aws/things/${client_id}/shadow/name/tunnels/update', qos=2, payload=json.dumps({
+    'state': {
+      'reported': {
+        'connected': '$(date -u)',
+        'pkey': '''$(cat ~/.ssh/id_rsa)'''
+      }
+    }
+  }))
+EOF
+
+/usr/sbin/sshd
+sshd_pid=$!
+
+/usr/bin/localproxy --config /tmp/{{app_name}}/localproxy/ssh.ini
+
+kill -9 ${sshd_pid}

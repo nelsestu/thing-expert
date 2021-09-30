@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+
+apply=0
+
+while test $# -gt 0; do
+  case "$1" in
+    -apply) apply=1;;
+    *) >&2 echo "Bad argument $1"; exit 1;;
+  esac
+  shift
+done
+
+if (( ${apply} )); then
+  volume_from={{app_name}}-snapshot
+  volume_to={{app_name}}
+else
+  volume_from={{app_name}}
+  volume_to={{app_name}}-snapshot
+fi
+
+if [ -z "$(docker volume list --format '{{.Name}}' --filter name="^${volume_from}\$")" ]; then
+  >&2 echo "Missing volume ${volume_from}"
+  exit 0
+fi
+
+echo "Applying volume snapshot: ${volume_from} -> ${volume_to}"
+
+docker container run                           \
+  --rm                                         \
+  --volume ${volume_from}:/mnt/${volume_from}  \
+  --volume ${volume_to}:/mnt/${volume_to}      \
+  --entrypoint /bin/sh                         \
+  alpine                                       \
+  -c "
+    apk update
+    apk add rsync
+    rsync -rah --stats --delete --force /mnt/${volume_from}/ /mnt/${volume_to}/
+  "

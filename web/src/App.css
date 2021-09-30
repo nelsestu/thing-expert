@@ -1,0 +1,17 @@
+.App {
+  margin-top: 15px;
+}
+
+.App .navbar-brand {
+  font-weight: bold;
+}
+
+.navbar-icon {
+  vertical-align: middle !important;
+}
+
+.navbar-label {
+  vertical-align: middle !important;
+  padding-top: 1px;
+  padding-left: 5px;
+}

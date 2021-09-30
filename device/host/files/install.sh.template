@@ -1,0 +1,111 @@
+#!/bin/bash
+
+set -e
+
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+script_path=${script_dir}/$(basename "${BASH_SOURCE[0]}")
+script_name=$(basename ${BASH_SOURCE[0]})
+
+cd "${script_dir}"
+
+retain_images=()
+
+latest_id=$(docker images --format '{{.ID}}' {{app_name}}:latest 2> /dev/null)
+previous_id=$(docker images --format '{{.ID}}' {{app_name}}:previous 2> /dev/null)
+factory_id=$(docker images --format '{{.ID}}' {{app_name}}:factory 2> /dev/null)
+
+if [ -n "${factory_id}" ]; then
+  retain_images+=("${factory_id}")
+fi
+
+if [ "${latest_id}" == '{{image_id}}' ]; then
+
+  echo 'The image {{app_name}}:{{image_id}} is already loaded and tagged as the latest'
+  echo "Retaining tag {{app_name}}:${latest_id} -> {{app_name}}:latest"
+  retain_images+=("${latest_id}")
+
+  if [ -n "${previous_id}" ]; then
+    echo "Retaining tag {{app_name}}:${previous_id} -> {{app_name}}:previous"
+    retain_images+=("${previous_id}")
+  fi
+
+else
+
+  bash snapshot.sh
+
+  bash pre-install.sh
+
+  docker image load -i {{app_name}}-{{image_id}}.tar.gz
+
+  set +e
+  bash post-install.sh
+  install_status=$?
+  set -e
+
+  if (( ${install_status} == 0 )); then
+
+    if [ -n "${latest_id}" ]; then
+
+      echo "Tagging {{app_name}}:${latest_id} -> {{app_name}}:previous"
+      docker image tag {{app_name}}:${latest_id} {{app_name}}:previous
+      retain_images+=("${latest_id}")
+
+    elif [ -n "${previous_id}" ]; then
+
+      echo "Retaining tag {{app_name}}:${previous_id} -> {{app_name}}:previous"
+      retain_images+=("${previous_id}")
+
+    fi
+
+    echo 'Tagging {{app_name}}:{{image_id}} -> {{app_name}}:latest'
+    docker image tag {{app_name}}:{{image_id}} {{app_name}}:latest
+    retain_images+=('{{image_id}}')
+
+    if [ -z "${factory_id}" ]; then
+      echo 'Tagging {{app_name}}:{{image_id}} -> {{app_name}}:factory'
+      docker image tag {{app_name}}:{{image_id}} {{app_name}}:factory
+    fi
+
+  else
+
+    echo 'Image {{app_name}}:{{image_id}} install has failed'
+
+    bash snapshot.sh -apply
+
+    if [ -n "${latest_id}" ]; then
+      echo "Retaining tag {{app_name}}:${latest_id} -> {{app_name}}:latest"
+      retain_images+=("${latest_id}")
+    fi
+
+    if [ -n "${previous_id}" ]; then
+      echo "Retaining tag {{app_name}}:${previous_id} -> {{app_name}}:previous"
+      retain_images+=("${previous_id}")
+    fi
+
+  fi
+
+fi
+
+if (( ${#retain_images[@]} )); then
+  retain_images=($(echo "${retain_images[@]}" | tr ' ' '\n' | sort -u))
+  echo "Retaining images: ${retain_images[@]}"
+fi
+
+filter_ids=$(for i in "${retain_images[@]}"; do printf " -e ${i}"; done)
+[ -n "${filter_ids}" ] && filter_ids="grep -Fv ${filter_ids}" || filter_ids='cat'
+
+remove_images=($(docker images --format '{{.ID}}' {{app_name}} | ${filter_ids} | sort -u))
+
+if (( ${#remove_images[@]} )); then
+  echo "Removing images: ${remove_images[@]}"
+  for image in "${remove_images[@]}"; do
+    containers=($(docker ps --format '{{.ID}}' --filter ancestor=${image}))
+    if (( ${#containers[@]} )); then
+      for container in "${containers[@]}"; do
+        echo "Killing container: ${container} for image ${image}"
+        docker container stop --time 15 ${container} > /dev/null
+      done
+    fi
+    docker image rm --force ${image}
+  done
+fi

@@ -1,0 +1,80 @@
+.ThingsCard {
+  margin-top: 30px;
+}
+
+.ThingsCard .card-header {
+  font-weight: 500;
+  font-size: large;
+  overflow: hidden;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0.75rem 1.25rem;
+}
+
+.ThingsCard .card-body {
+  padding: 0;
+}
+
+.ThingsCard .empty-label {
+  vertical-align: middle !important;
+  display: inline;
+  line-height: 56px;
+  padding: 0.75rem 1.25rem;
+}
+
+.ThingsCard .list-group:last-child {
+  border: 0 none;
+}
+
+.ThingsCard .list-group-item {
+  border: solid rgba(0, 0, 0, 0.125);
+  border-width: 0 0 1px;
+  padding: 0;
+}
+
+.ThingsCard .thing-header {
+  padding: 0.75rem 1.25rem;
+}
+
+.ThingsCard .thing-header p {
+  margin: 0;
+}
+
+.ThingsCard .thing-details {
+  padding: 0.75rem 1.25rem;
+  background-color: #f8f9fa !important;
+}
+
+.ThingsCard .table {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.ThingsCard .thing-details .table input,
+.ThingsCard .thing-details .table input:focus {
+  appearance: unset;
+  background: none;
+  margin: 0;
+  padding: 5px;
+  border: unset;
+}
+
+.ThingsCard .thing-details .table input:focus {
+  background: white;
+}
+
+.ThingsCard h4 {
+  font-weight: 600;
+  overflow: hidden;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ThingsCard h5 {
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

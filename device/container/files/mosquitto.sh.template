@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p /tmp/{{app_name}}
+
+cp /etc/{{app_name}}/mosquitto.conf.template /tmp/{{app_name}}/mosquitto.conf
+sed -i "s|{{client_id}}|${BASELINE_CLIENT_ID}|g" /tmp/{{app_name}}/mosquitto.conf
+
+/usr/sbin/mosquitto -c /tmp/{{app_name}}/mosquitto.conf

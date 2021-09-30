@@ -1,0 +1,48 @@
+connection aws
+
+address {{endpoint}}:8883
+
+remote_clientid {{client_id}}
+
+bridge_protocol_version mqttv311
+bridge_cafile /etc/{{app_name}}/aws/root.crt
+bridge_certfile /mnt/{{app_name}}/aws/client.crt
+bridge_keyfile /mnt/{{app_name}}/aws/client.key
+bridge_insecure false
+bridge_attempt_unsubscribe false
+
+start_type automatic
+cleansession true
+notifications true
+notifications_local_only true
+connection_messages false
+# log_type debug
+
+topic {{topic_prefix}}/things/{{client_id}}/#                  in  1
+topic $aws/rules/{{topic_prefix}}/things/{{client_id}}/#       out 1
+topic $aws/things/{{client_id}}/jobs/get                       out 1
+topic $aws/things/{{client_id}}/jobs/get/accepted              in  1
+topic $aws/things/{{client_id}}/jobs/get/rejected              in  1
+topic $aws/things/{{client_id}}/jobs/start-next                out 1
+topic $aws/things/{{client_id}}/jobs/start-next/accepted       in  1
+topic $aws/things/{{client_id}}/jobs/start-next/rejected       in  1
+topic $aws/things/{{client_id}}/jobs/+/get                     out 1
+topic $aws/things/{{client_id}}/jobs/+/get/accepted            in  1
+topic $aws/things/{{client_id}}/jobs/+/get/rejected            in  1
+topic $aws/things/{{client_id}}/jobs/+/update                  out 1
+topic $aws/things/{{client_id}}/jobs/+/update/accepted         in  1
+topic $aws/things/{{client_id}}/jobs/+/update/rejected         in  1
+topic $aws/things/{{client_id}}/jobs/notify                    in  1
+topic $aws/things/{{client_id}}/jobs/notify-next               in  1
+topic $aws/things/{{client_id}}/shadow/name/+/get              out 1
+topic $aws/things/{{client_id}}/shadow/name/+/get/accepted     in  1
+topic $aws/things/{{client_id}}/shadow/name/+/get/rejected     in  1
+topic $aws/things/{{client_id}}/shadow/name/+/update           out 1
+topic $aws/things/{{client_id}}/shadow/name/+/update/delta     in  1
+topic $aws/things/{{client_id}}/shadow/name/+/update/documents in  1
+topic $aws/things/{{client_id}}/shadow/name/+/update/accepted  in  1
+topic $aws/things/{{client_id}}/shadow/name/+/update/rejected  in  1
+topic $aws/things/{{client_id}}/shadow/name/+/delete           out 1
+topic $aws/things/{{client_id}}/shadow/name/+/delete/accepted  in  1
+topic $aws/things/{{client_id}}/shadow/name/+/delete/rejected  in  1
+topic $aws/things/{{client_id}}/tunnels/notify                 in  1

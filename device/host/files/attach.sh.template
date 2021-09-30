@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+container=$(docker ps --format '{{.ID}}' --filter ancestor={{image_id}} | head -n1)
+
+if [ -z "${container}" ]; then
+  >&2 echo "Container not running for {{app_name}}:{{image_id}}"
+  exit 1
+fi
+
+docker container exec  \
+  -it                  \
+  ${container}         \
+  /bin/bash

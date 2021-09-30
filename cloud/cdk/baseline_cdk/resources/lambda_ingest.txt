@@ -1,0 +1,3 @@
+# boto3 # provided by lambda container
+pyopenssl==19.1.0
+redis==3.5.3

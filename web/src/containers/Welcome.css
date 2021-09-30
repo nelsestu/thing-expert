@@ -1,0 +1,19 @@
+.Welcome {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.Welcome h1 {
+  margin-top: 80px;
+  font-weight: 600;
+}
+
+.Welcome p {
+  color: #999;
+}
+
+.Welcome .alert {
+  margin: 0 auto 30px;
+  max-width: 800px;
+  font-size: medium;
+}

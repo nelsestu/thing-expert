@@ -1,0 +1,40 @@
+FROM alpine:latest
+
+RUN apk --no-cache add bash                          && \
+    /bin/bash -c "                                      \
+                                                        \
+      apk --no-cache upgrade                           ;\
+      apk --no-cache add python3                        \
+                         py3-pip                       ;\
+      apk --no-cache add supervisor                    ;\
+      apk --no-cache add mosquitto                     ;\
+                                                        \
+      apk --no-cache add openssh-server                 \
+                         protobuf                      ;\
+      passwd -d \$(whoami)                             ;\
+      ssh-keygen -A                                    ;\
+                                                        \
+      apk --no-cache add gcc                            \
+                         musl-dev                       \
+                         python3-dev                    \
+                         libffi-dev                     \
+                         openssl-dev                   ;\
+                                                        \
+      pip3 --no-cache-dir install --upgrade pip         \
+                                            setuptools  \
+                                            wheel      ;\
+      pip3 --no-cache-dir install {{requirements}}     ;\
+                                                        \
+      apk --no-cache del gcc                            \
+                         musl-dev                       \
+                         python3-dev                    \
+                         libffi-dev                     \
+                         openssl-dev                   ;\
+                                                        \
+      rm -rf /tmp                                      ;\
+    "
+
+COPY device/container/src /opt/{{app_name}}/
+COPY .build/device/overlay /
+
+ENTRYPOINT /bin/bash /opt/{{app_name}}/entrypoint.sh

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p /tmp/{{app_name}}
+
+if [ ! -d '/mnt/{{app_name}}/aws/' ]; then
+  PYTHONPATH='/opt/{{app_name}}' \
+  PYTHONPYCACHEPREFIX='/tmp/{{app_name}}/pycache' \
+  /usr/bin/python3 -u /opt/{{app_name}}/baseline_device/service/provision.py
+fi
+
+export BASELINE_CLIENT_ID=$(cat /mnt/{{app_name}}/aws/thing.id)
+
+/usr/bin/supervisord -c /etc/{{app_name}}/supervisord.conf
